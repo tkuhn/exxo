@@ -1,0 +1,52 @@
+<!DOCTYPE web-app 
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+  <display-name>Exxo</display-name>
+  <description>
+  </description>
+  
+  
+  <context-param>
+    <param-name>datadir</param-name>
+    <param-value>exp</param-value>
+  </context-param>
+  
+  
+  <servlet>
+    <servlet-name>Test</servlet-name>
+    <servlet-class>ch.tkuhn.exxo.ExpServlet</servlet-class>
+    <init-param>
+      <param-name>resources</param-name>
+      <param-value>ch/tkuhn/exxo/test/</param-value>
+    </init-param>
+    <init-param>
+      <param-name>script</param-name>
+      <param-value>run</param-value>
+    </init-param>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>Monitor</servlet-name>
+    <servlet-class>ch.tkuhn.exxo.MonitorServlet</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+    <servlet-name>Test</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>Monitor</servlet-name>
+    <url-pattern>/monitor/</url-pattern>
+  </servlet-mapping>
+  
+  
+  <session-config>
+    <session-timeout>120</session-timeout>
+  </session-config>
+  
+</web-app>
