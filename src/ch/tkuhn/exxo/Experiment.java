@@ -84,9 +84,9 @@ public class Experiment {
 		if (c.equals("identification")) {
 			step = new IdentificationStep(arguments, this);
 		} else if (c.equals("test")) {
-			step = new TestStep(tokens[1], tokens[2], arguments, this);
+			step = new TestStep(tokens[1], arguments, this);
 		} else if (c.equals("learn")) {
-			step = new LearnStep(tokens[1], tokens[2], arguments, this);
+			step = new LearnStep(tokens[1], arguments, this);
 		} else if (c.equals("feedback")) {
 			step = new FeedbackStep(tokens[1], arguments, this);
 		} else if (c.equals("end")) {

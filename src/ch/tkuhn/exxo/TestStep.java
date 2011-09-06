@@ -35,11 +35,11 @@ public class TestStep extends ExperimentStep {
 	private List<ButtonGroup> buttonGroups = new ArrayList<ButtonGroup>();
 	private String expl;
 	
-	public TestStep(String seriesID, String language, Map<String, String> arguments, Experiment experiment) {
+	public TestStep(String series, Map<String, String> arguments, Experiment experiment) {
 		super(arguments, experiment);
 		
-		this.graphID = seriesID.split("/")[0];
-		this.statements = getResources().getStatements(seriesID, language);
+		this.graphID = series.split(":")[0];
+		this.statements = getResources().getStatements(series);
 		Collections.shuffle(this.statements);
 		
 		expl = arguments.get("expl");
@@ -132,10 +132,10 @@ public class TestStep extends ExperimentStep {
 		for (int i = 0 ; i < statements.size() ; i++) {
 			Statement st = statements.get(i);
 			String choice = getChoice(i);
-			s += "(" + choice + ") " + st.getID() + " '" + st.getText() + "'\n";
-			if (choice == TRUE && st.getID().indexOf("+") > -1) {
+			s += "(" + choice + ") " + st.getSignature() + " '" + st.getText() + "'\n";
+			if (choice == TRUE && st.hasTag("+")) {
 				correct++;
-			} else if (choice == FALSE && st.getID().indexOf("-") > -1) {
+			} else if (choice == FALSE && st.hasTag("-")) {
 				correct++;
 			} else if (choice == DONT_KNOW ) {
 				dontKnow++;

@@ -22,11 +22,11 @@ public class LearnStep extends ExperimentStep {
 	private List<Statement> statements;
 	private String expl;
 	
-	public LearnStep(String seriesID, String language, Map<String, String> arguments, Experiment experiment) {
+	public LearnStep(String series, Map<String, String> arguments, Experiment experiment) {
 		super(arguments, experiment);
 		
-		this.graphID = seriesID.split("/")[0];
-		this.statements = getResources().getStatements(seriesID, language);
+		this.graphID = series.split(":")[0];
+		this.statements = getResources().getStatements(series);
 		Collections.shuffle(this.statements);
 		
 		expl = arguments.get("expl");
@@ -60,7 +60,7 @@ public class LearnStep extends ExperimentStep {
 		statCol.add(new Label(getIntlText("heading_true_statements"), Font.ITALIC | Font.BOLD));
 		statCol.add(new VSpace(5));
 		for (Statement st : statements) {
-			if (!st.isTrue()) continue;
+			if (!st.hasTag("+")) continue;
 			Row r = new Row();
 			r.add(Resources.createStatementComponent(st));
 			statCol.add(r);
@@ -70,7 +70,7 @@ public class LearnStep extends ExperimentStep {
 		statCol.add(new Label(getIntlText("heading_false_statements"), Font.ITALIC | Font.BOLD));
 		statCol.add(new VSpace(5));
 		for (Statement st : statements) {
-			if (st.isTrue()) continue;
+			if (!st.hasTag("-")) continue;
 			Row r = new Row();
 			r.add(Resources.createStatementComponent(st));
 			statCol.add(r);

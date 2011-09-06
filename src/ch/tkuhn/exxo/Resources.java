@@ -2,9 +2,7 @@ package ch.tkuhn.exxo;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import nextapp.echo.app.Component;
 import nextapp.echo.app.ResourceImageReference;
@@ -14,8 +12,7 @@ import ch.uzh.ifi.attempto.echocomp.SolidLabel;
 
 public class Resources {
 	
-	private static Map<String, LanguageFormatter> languageFormatters =
-		new HashMap<String, LanguageFormatter>();
+	private static List<LanguageFormatter> languageFormatters =	new ArrayList<LanguageFormatter>();
 	
 	private String path;
 	
@@ -32,19 +29,23 @@ public class Resources {
 		return new Label(new ResourceImageReference(path + imgName + ".png"));
 	}
 	
-	public List<Statement> getStatements(String seriesID, String language) {
-		String[] seriesIDparts = seriesID.split("/");
-		String graphID = seriesIDparts[0];
-		String variant = null;
-		if (seriesIDparts.length > 1) {
-			variant = seriesIDparts[1];
+	public List<Statement> getStatements(String series) {
+		String file;
+		String[] tags;
+		int i = series.indexOf(":");
+		if (i > -1) {
+			file = series.substring(0, i);
+			tags = series.substring(i+1).split("\\|");
+		} else {
+			file = series;
+			tags = new String[] {};
 		}
 		
 		List<Statement> statements = new ArrayList<Statement>();
 		String currentLine = null;
 		try {
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			InputStream in = cl.getResourceAsStream(path + graphID + ".txt");
+			InputStream in = cl.getResourceAsStream(path + file + ".txt");
 			byte[] bytes = new byte[in.available()];
 			in.read(bytes);
 			in.close();
@@ -52,16 +53,19 @@ public class Resources {
 			for (String line : lines) {
 				currentLine = line;
 				line = line.replaceFirst("^\\s*", "").replaceFirst("\\s*$", "");
-				if (line.equals("")) {
+				if (line.equals("") || line.startsWith("#")) {
 					continue;
 				}
-				String[] parts = line.split("\\s*:\\s*", 2);
-				String[] categories = parts[0].split("\\s+");
-				String v = categories[0].replaceFirst("^[0-9]+(.*)[\\+\\-]$", "$1");
-				String l = categories[1];
-				String text = parts[1];
-				if (language.equals(l) && (variant == null || variant.equals(v)) ) {
-					statements.add(new Statement(categories[0], l, text));
+				Statement statement = new Statement(line);
+				boolean addStatement = true;
+				for (String t : tags) {
+					if (!statement.hasTag(t)) {
+						addStatement = false;
+						break;
+					}
+				}
+				if (addStatement) {
+					statements.add(statement);
 				}
 			}
 		} catch (Exception ex) {
@@ -94,17 +98,18 @@ public class Resources {
 	}
 	
 	public static void registerLanguageFormatter(LanguageFormatter lf) {
-		languageFormatters.put(lf.getLanguage(), lf);
+		languageFormatters.add(lf);
 	}
 	
 	public static Component createStatementComponent(Statement statement) {
-		LanguageFormatter lf = languageFormatters.get(statement.getLanguage());
-		if (lf != null) {
-			String t =
-				"<span><nobr>" +
-				lf.getFormattedText(statement.getText()) +
-				"</nobr></span>";
-			return ExpApp.getHTMLComponent(t);
+		for (LanguageFormatter lf : languageFormatters) {
+			if (statement.hasTag(lf.getLanguage())) {
+				String t =
+					"<span><nobr>" +
+					lf.getFormattedText(statement.getText()) +
+					"</nobr></span>";
+				return ExpApp.getHTMLComponent(t);
+			}
 		}
 		return new SolidLabel(statement.getText());
 	}
