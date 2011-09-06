@@ -146,10 +146,10 @@ public class TestStep extends ExperimentStep {
 			}
 		}
 		log("Choice:\n" + s);
-		int payoutC = new Integer(getApp().getVariableValue("payoutc"));
-		int payoutD = new Integer(getApp().getVariableValue("payoutd"));
-		int payout = correct * payoutC + (dontKnow + noChoice) * payoutD;
-		log("$ Score/payout: " + payout + " (c=" + correct + ", i=" + incorrect + ", d=" + dontKnow + ", n=" + noChoice + ")");
+		int scoreC = new Integer(getApp().getVariableValue("scorec"));
+		int scoreD = new Integer(getApp().getVariableValue("scored"));
+		int score = correct * scoreC + (dontKnow + noChoice) * scoreD;
+		log("$ Score: " + score + " (c=" + correct + ", i=" + incorrect + ", d=" + dontKnow + ", n=" + noChoice + ")");
 	}
 	
 	public boolean hasProceedConfirmation() {
