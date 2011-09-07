@@ -5,10 +5,10 @@ import java.util.Map;
 import nextapp.echo.app.Alignment;
 import nextapp.echo.app.Column;
 import nextapp.echo.app.Component;
-import nextapp.echo.app.Extent;
 import nextapp.echo.app.Insets;
 import nextapp.echo.app.Row;
 import nextapp.echo.app.layout.RowLayoutData;
+import ch.uzh.ifi.attempto.echocomp.HSpace;
 
 
 public class InfoStep extends ExperimentStep {
@@ -36,17 +36,19 @@ public class InfoStep extends ExperimentStep {
 			layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 			
 			Row row = new Row();
-			row.setCellSpacing(new Extent(50));
 			
 			Column contentCol = new Column();
 			contentCol.setLayoutData(layout);
 			contentCol.add(htmlComp);
 			row.add(contentCol);
-			col.add(row);
+			
+			row.add(new HSpace(50));
 			
 			Component image = getResources().getImage(img);
 			image.setLayoutData(layout);
 			row.add(image);
+			
+			col.add(row);
 		}
 		return col;
 	}

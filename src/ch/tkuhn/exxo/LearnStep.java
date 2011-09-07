@@ -5,7 +5,6 @@ import java.util.Map;
 import nextapp.echo.app.Alignment;
 import nextapp.echo.app.Column;
 import nextapp.echo.app.Component;
-import nextapp.echo.app.Extent;
 import nextapp.echo.app.Font;
 import nextapp.echo.app.Insets;
 import nextapp.echo.app.Row;
@@ -30,12 +29,12 @@ public class LearnStep extends StatementStep {
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
 		Row mainRow = new Row();
-		mainRow.setCellSpacing(new Extent(20));
 		
 		if (!"off".equals(img)) {
 			Component image = getResources().getImage(img);
 			image.setLayoutData(layout);
 			mainRow.add(image);
+			mainRow.add(new HSpace(20));
 		}
 
 		Column statCol = new Column();

@@ -43,12 +43,12 @@ public class TestStep extends StatementStep {
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
 		Row mainRow = new Row();
-		mainRow.setCellSpacing(new Extent(20));
 		
 		if (!"off".equals(img)) {
 			Component image = getResources().getImage(img);
 			image.setLayoutData(layout);
 			mainRow.add(image);
+			mainRow.add(new HSpace(20));
 		}
 		
 		Column statCol = new Column();
@@ -116,9 +116,9 @@ public class TestStep extends StatementStep {
 			statCol.add(new VSpace(20));
 			
 			statementsGrid = new Grid(3);
-			statementsGrid.add(new Label(getIntlText("heading_answer"), Font.ITALIC | Font.BOLD));
+			statementsGrid.add(new Label(getIntlText("heading_answer"), Font.ITALIC, 10));
 			statementsGrid.add(new VSpace(30));
-			statementsGrid.add(new Label(getIntlText("heading_question"), Font.ITALIC | Font.BOLD));
+			statementsGrid.add(new Label(getIntlText("heading_question"), Font.ITALIC, 10));
 			
 			for (Statement st : statements) {
 				AnswerDropDown d = new AnswerDropDown(this, options.toArray(new String[] {}));
