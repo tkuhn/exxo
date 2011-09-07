@@ -1,7 +1,6 @@
 package ch.tkuhn.exxo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,34 +21,14 @@ import ch.uzh.ifi.attempto.echocomp.MessageWindow;
 import ch.uzh.ifi.attempto.echocomp.RadioButton;
 import ch.uzh.ifi.attempto.echocomp.VSpace;
 
-public class TestStep extends ExperimentStep {
+public class TestStep extends StatementStep {
 	
-	private final static String NO_CHOICE = "-";
-	private final static String FALSE = "F";
-	private final static String TRUE = "T";
-	private final static String DONT_KNOW = "D";
-	
-	private String img;
-	private List<Statement> statements;
 	private List<ButtonGroup> buttonGroups = new ArrayList<ButtonGroup>();
-	private String expl;
+	private List<AnswerDropDown> dropDownMenus = new ArrayList<AnswerDropDown>();
 	private boolean force;
 	
 	public TestStep(String series, Map<String, String> arguments, Experiment experiment) {
-		super(arguments, experiment);
-		
-		img = arguments.get("img");
-		if (img == null) {
-			img = series.split(":")[0];
-		}
-		statements = getResources().getStatements(series);
-		
-		String shuffle = arguments.get("shuffle");
-		if (shuffle == null || !shuffle.equals("off")) {
-			Collections.shuffle(statements);
-		}
-		
-		expl = arguments.get("expl");
+		super(series, arguments, experiment);
 		
 		force = "on".equals(arguments.get("force"));
 		
@@ -83,54 +62,77 @@ public class TestStep extends ExperimentStep {
 		statCol.setInsets(new Insets(20, 10, 20, 20));
 		statCol.setLayoutData(layout);
 		
-		statCol.add(new Label(getIntlText("heading_classification_task"), Font.ITALIC | Font.BOLD));
-		statCol.add(new VSpace(20));
-		
 		Grid statementsGrid;
-		if (force) {
-			statementsGrid = new Grid(3);
-		} else {
-			statementsGrid = new Grid(4);
-		}
-		statementsGrid.setInsets(new Insets(0, 5, 0, 0));
-		statementsGrid.setColumnWidth(0, new Extent(35));
-		statementsGrid.setColumnWidth(1, new Extent(35));
-		if (!force) {
-			statementsGrid.setColumnWidth(2, new Extent(35));
-		}
-		GridLayoutData centerLayout = new GridLayoutData();
-		centerLayout.setAlignment(new Alignment(Alignment.CENTER, Alignment.CENTER));
-		Label l1 = new Label(getIntlText("classify_true"), Font.ITALIC, 10);
-		l1.setLayoutData(centerLayout);
-		statementsGrid.add(l1);
-		Label l2 = new Label(getIntlText("classify_false"), Font.ITALIC, 10);
-		l2.setLayoutData(centerLayout);
-		statementsGrid.add(l2);
-		if (!force) {
-			Label l3 = new Label(getIntlText("no_classification"), Font.ITALIC, 10);
-			l3.setLayoutData(centerLayout);
-			statementsGrid.add(l3);
-		}
-		statementsGrid.add(new Label(""));
-		for (Statement st : statements) {
-			ButtonGroup group = new ButtonGroup();
-			buttonGroups.add(group);
-			statementsGrid.add(createRadioButton("classify_true", group));
-			statementsGrid.add(createRadioButton("classify_false", group));
-			if (!force) {
-				statementsGrid.add(createRadioButton("no_classification", group));
+		
+		if (options == null) {
+			statCol.add(new Label(getIntlText("heading_classification_task"), Font.ITALIC | Font.BOLD));
+			statCol.add(new VSpace(20));
+			
+			if (force) {
+				statementsGrid = new Grid(3);
+			} else {
+				statementsGrid = new Grid(4);
 			}
-			Row r = new Row();
-			r.setInsets(new Insets(10, 0, 0, 5));
-			r.add(Resources.createStatementComponent(st));
-			statementsGrid.add(r);
-		}
-		statementsGrid.add(new HSpace(35));
-		statementsGrid.add(new HSpace(35));
-		if (!force) {
+			statementsGrid.setColumnWidth(0, new Extent(35));
+			statementsGrid.setColumnWidth(1, new Extent(35));
+			if (!force) {
+				statementsGrid.setColumnWidth(2, new Extent(35));
+			}
+			GridLayoutData centerLayout = new GridLayoutData();
+			centerLayout.setAlignment(new Alignment(Alignment.CENTER, Alignment.CENTER));
+			Label l1 = new Label(getIntlText("classify_true"), Font.ITALIC, 10);
+			l1.setLayoutData(centerLayout);
+			statementsGrid.add(l1);
+			Label l2 = new Label(getIntlText("classify_false"), Font.ITALIC, 10);
+			l2.setLayoutData(centerLayout);
+			statementsGrid.add(l2);
+			if (!force) {
+				Label l3 = new Label(getIntlText("no_classification"), Font.ITALIC, 10);
+				l3.setLayoutData(centerLayout);
+				statementsGrid.add(l3);
+			}
+			statementsGrid.add(new Label(""));
+			for (Statement st : statements) {
+				ButtonGroup group = new ButtonGroup();
+				buttonGroups.add(group);
+				statementsGrid.add(createRadioButton("+", group));
+				statementsGrid.add(createRadioButton("-", group));
+				if (!force) {
+					statementsGrid.add(createRadioButton("?", group));
+				}
+				Row r = new Row();
+				r.setInsets(new Insets(10, 0, 0, 5));
+				r.add(Resources.createStatementComponent(st));
+				statementsGrid.add(r);
+			}
 			statementsGrid.add(new HSpace(35));
+			statementsGrid.add(new HSpace(35));
+			if (!force) {
+				statementsGrid.add(new HSpace(35));
+			}
+			statementsGrid.add(new HSpace(300));
+		} else {
+			statCol.add(new Label(getIntlText("heading_questions"), Font.ITALIC | Font.BOLD));
+			statCol.add(new VSpace(20));
+			
+			statementsGrid = new Grid(3);
+			statementsGrid.add(new Label(getIntlText("heading_answer"), Font.ITALIC | Font.BOLD));
+			statementsGrid.add(new VSpace(30));
+			statementsGrid.add(new Label(getIntlText("heading_question"), Font.ITALIC | Font.BOLD));
+			
+			for (Statement st : statements) {
+				AnswerDropDown d = new AnswerDropDown(this, options.toArray(new String[] {}));
+				dropDownMenus.add(d);
+				statementsGrid.add(d);
+				statementsGrid.add(new VSpace(30));
+				statementsGrid.add(createStatementRow(st));
+			}
+			statementsGrid.add(new HSpace(100));
+			statementsGrid.add(new HSpace(20));
+			statementsGrid.add(new HSpace(300));
 		}
-		statementsGrid.add(new HSpace(300));
+
+		statementsGrid.setInsets(new Insets(0, 5, 0, 0));
 		statCol.add(statementsGrid);
 		mainRow.add(statCol);
 		
@@ -163,13 +165,11 @@ public class TestStep extends ExperimentStep {
 			Statement st = statements.get(i);
 			String choice = getChoice(i);
 			s += "(" + choice + ") " + st.getSignature() + " '" + st.getText() + "'\n";
-			if (choice == TRUE && st.hasTag("+")) {
+			if (st.hasTag(choice)) {
 				corr++;
-			} else if (choice == FALSE && st.hasTag("-")) {
-				corr++;
-			} else if (choice == DONT_KNOW) {
+			} else if (choice.equals(DONT_KNOW)) {
 				dontKnow++;
-			} else if (choice == DONT_KNOW || choice == NO_CHOICE) {
+			} else if (choice.equals(NO_CHOICE)) {
 				noChoice++;
 			} else {
 				incorr++;
@@ -184,16 +184,14 @@ public class TestStep extends ExperimentStep {
 		log("$ Score: " + score + " (c=" + corr + ", i=" + incorr + d + ", n=" + noChoice + ")");
 	}
 	
-	public boolean hasProceedConfirmation() {
-		return true;
-	}
-	
 	private String getChoice(int index) {
-		for (Object o : buttonGroups.get(index).getButtons()) {
-			RadioButton r = (RadioButton) o;
-			if (r.isSelected() && r.getActionCommand().equals("classify_true")) return TRUE;
-			if (r.isSelected() && r.getActionCommand().equals("classify_false")) return FALSE;
-			if (r.isSelected() && r.getActionCommand().equals("no_classification")) return DONT_KNOW;
+		if (options == null) {
+			for (Object o : buttonGroups.get(index).getButtons()) {
+				RadioButton r = (RadioButton) o;
+				if (r.isSelected()) return r.getActionCommand();
+			}
+		} else {
+			return dropDownMenus.get(index).getSelection();
 		}
 		return NO_CHOICE;
 	}

@@ -1,7 +1,5 @@
 package ch.tkuhn.exxo;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import nextapp.echo.app.Alignment;
@@ -12,30 +10,14 @@ import nextapp.echo.app.Font;
 import nextapp.echo.app.Insets;
 import nextapp.echo.app.Row;
 import nextapp.echo.app.layout.RowLayoutData;
+import ch.uzh.ifi.attempto.echocomp.HSpace;
 import ch.uzh.ifi.attempto.echocomp.Label;
 import ch.uzh.ifi.attempto.echocomp.VSpace;
 
-public class LearnStep extends ExperimentStep {
-	
-	private String img;
-	private List<Statement> statements;
-	private String expl;
+public class LearnStep extends StatementStep {
 	
 	public LearnStep(String series, Map<String, String> arguments, Experiment experiment) {
-		super(arguments, experiment);
-		
-		img = arguments.get("img");
-		if (img == null) {
-			img = series.split(":")[0];
-		}
-		statements = getResources().getStatements(series);
-		
-		String shuffle = arguments.get("shuffle");
-		if (shuffle == null || !shuffle.equals("off")) {
-			Collections.shuffle(statements);
-		}
-		
-		expl = arguments.get("expl");
+		super(series, arguments, experiment);
 		
 		setDefaultTitle(getIntlText("title_learn_step"));
 	}
@@ -66,33 +48,50 @@ public class LearnStep extends ExperimentStep {
 		
 		statCol.setLayoutData(layout);
 		statCol.setInsets(new Insets(20, 10, 20, 20));
-		statCol.setCellSpacing(new Extent(5));
-		statCol.add(new Label(getIntlText("heading_true_statements"), Font.ITALIC | Font.BOLD));
-		statCol.add(new VSpace(5));
-		for (Statement st : statements) {
-			if (!st.hasTag("+")) continue;
-			Row r = new Row();
-			r.add(Resources.createStatementComponent(st));
-			statCol.add(r);
+		
+		if (options == null) {
+			statCol.add(new Label(getIntlText("heading_true_statements"), Font.ITALIC | Font.BOLD));
+			statCol.add(new VSpace(10));
+			for (Statement st : statements) {
+				if (!st.hasTag("+")) continue;
+				statCol.add(createStatementRow(st));
+				statCol.add(new VSpace(5));
+			}
+	
+			statCol.add(new VSpace(20));
+			statCol.add(new Label(getIntlText("heading_false_statements"), Font.ITALIC | Font.BOLD));
+			statCol.add(new VSpace(10));
+			for (Statement st : statements) {
+				if (!st.hasTag("-")) continue;
+				statCol.add(createStatementRow(st));
+				statCol.add(new VSpace(5));
+			}
+		} else {
+			statCol.add(new Label(getIntlText("heading_examples"), Font.ITALIC | Font.BOLD));
+			statCol.add(new VSpace(20));
+			for (Statement st : statements) {
+				statCol.add(createStatementRow(st));
+				statCol.add(createAnswerRow(st));
+				statCol.add(new VSpace(10));
+			}
 		}
-
-		statCol.add(new VSpace(20));
-		statCol.add(new Label(getIntlText("heading_false_statements"), Font.ITALIC | Font.BOLD));
-		statCol.add(new VSpace(5));
-		for (Statement st : statements) {
-			if (!st.hasTag("-")) continue;
-			Row r = new Row();
-			r.add(Resources.createStatementComponent(st));
-			statCol.add(r);
-		}
+		
 		mainRow.add(statCol);
 		
 		mailCol.add(mainRow);
 		return mailCol;
 	}
 	
-	public boolean hasProceedConfirmation() {
-		return true;
+	private Row createAnswerRow(Statement statement) {
+		Row r = new Row();
+		r.add(new Label(getIntlText("heading_answer"), Font.ITALIC | Font.BOLD));
+		for (String o : options) {
+			if (statement.hasTag(o)) {
+				r.add(new HSpace(10));
+				r.add(new Label(getOptionText(o)));
+			}
+		}
+		return r;
 	}
 
 }
