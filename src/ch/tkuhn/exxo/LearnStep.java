@@ -15,19 +15,25 @@ import nextapp.echo.app.layout.RowLayoutData;
 import ch.uzh.ifi.attempto.echocomp.Label;
 import ch.uzh.ifi.attempto.echocomp.VSpace;
 
-
 public class LearnStep extends ExperimentStep {
 	
-	private String graphID;
+	private String img;
 	private List<Statement> statements;
 	private String expl;
 	
 	public LearnStep(String series, Map<String, String> arguments, Experiment experiment) {
 		super(arguments, experiment);
 		
-		this.graphID = series.split(":")[0];
-		this.statements = getResources().getStatements(series);
-		Collections.shuffle(this.statements);
+		img = arguments.get("img");
+		if (img == null) {
+			img = series.split(":")[0];
+		}
+		statements = getResources().getStatements(series);
+		
+		String shuffle = arguments.get("shuffle");
+		if (shuffle == null || !shuffle.equals("off")) {
+			Collections.shuffle(statements);
+		}
 		
 		expl = arguments.get("expl");
 		
@@ -41,10 +47,14 @@ public class LearnStep extends ExperimentStep {
 		RowLayoutData layout = new RowLayoutData();
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
-		Row graphRow = new Row();
-		Component image = getResources().getImage(graphID);
-		image.setLayoutData(layout);
-		graphRow.add(image);
+		Row mainRow = new Row();
+		mainRow.setCellSpacing(new Extent(20));
+		
+		if (!"off".equals(img)) {
+			Component image = getResources().getImage(img);
+			image.setLayoutData(layout);
+			mainRow.add(image);
+		}
 
 		Column statCol = new Column();
 		
@@ -55,7 +65,7 @@ public class LearnStep extends ExperimentStep {
 		}
 		
 		statCol.setLayoutData(layout);
-		statCol.setInsets(new Insets(50, 10, 20, 20));
+		statCol.setInsets(new Insets(20, 10, 20, 20));
 		statCol.setCellSpacing(new Extent(5));
 		statCol.add(new Label(getIntlText("heading_true_statements"), Font.ITALIC | Font.BOLD));
 		statCol.add(new VSpace(5));
@@ -75,9 +85,9 @@ public class LearnStep extends ExperimentStep {
 			r.add(Resources.createStatementComponent(st));
 			statCol.add(r);
 		}
-		graphRow.add(statCol);
+		mainRow.add(statCol);
 		
-		mailCol.add(graphRow);
+		mailCol.add(mainRow);
 		return mailCol;
 	}
 	

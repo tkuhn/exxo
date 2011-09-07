@@ -22,7 +22,6 @@ import ch.uzh.ifi.attempto.echocomp.MessageWindow;
 import ch.uzh.ifi.attempto.echocomp.RadioButton;
 import ch.uzh.ifi.attempto.echocomp.VSpace;
 
-
 public class TestStep extends ExperimentStep {
 	
 	private final static String NO_CHOICE = "-";
@@ -30,19 +29,29 @@ public class TestStep extends ExperimentStep {
 	private final static String TRUE = "T";
 	private final static String DONT_KNOW = "D";
 	
-	private String graphID;
+	private String img;
 	private List<Statement> statements;
 	private List<ButtonGroup> buttonGroups = new ArrayList<ButtonGroup>();
 	private String expl;
+	private boolean force;
 	
 	public TestStep(String series, Map<String, String> arguments, Experiment experiment) {
 		super(arguments, experiment);
 		
-		this.graphID = series.split(":")[0];
-		this.statements = getResources().getStatements(series);
-		Collections.shuffle(this.statements);
+		img = arguments.get("img");
+		if (img == null) {
+			img = series.split(":")[0];
+		}
+		statements = getResources().getStatements(series);
+		
+		String shuffle = arguments.get("shuffle");
+		if (shuffle == null || !shuffle.equals("off")) {
+			Collections.shuffle(statements);
+		}
 		
 		expl = arguments.get("expl");
+		
+		force = "on".equals(arguments.get("force"));
 		
 		setDefaultTitle(getIntlText("title_test_step"));
 	}
@@ -54,10 +63,14 @@ public class TestStep extends ExperimentStep {
 		RowLayoutData layout = new RowLayoutData();
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
-		Row graphRow = new Row();
-		Component image = getResources().getImage(graphID);
-		image.setLayoutData(layout);
-		graphRow.add(image);
+		Row mainRow = new Row();
+		mainRow.setCellSpacing(new Extent(20));
+		
+		if (!"off".equals(img)) {
+			Component image = getResources().getImage(img);
+			image.setLayoutData(layout);
+			mainRow.add(image);
+		}
 		
 		Column statCol = new Column();
 		
@@ -67,17 +80,24 @@ public class TestStep extends ExperimentStep {
 			statCol.add(new VSpace(20));
 		}
 		
-		statCol.setInsets(new Insets(40, 10, 20, 20));
+		statCol.setInsets(new Insets(20, 10, 20, 20));
 		statCol.setLayoutData(layout);
 		
 		statCol.add(new Label(getIntlText("heading_classification_task"), Font.ITALIC | Font.BOLD));
 		statCol.add(new VSpace(20));
 		
-		Grid statementsGrid = new Grid(4);
+		Grid statementsGrid;
+		if (force) {
+			statementsGrid = new Grid(3);
+		} else {
+			statementsGrid = new Grid(4);
+		}
 		statementsGrid.setInsets(new Insets(0, 5, 0, 0));
 		statementsGrid.setColumnWidth(0, new Extent(35));
 		statementsGrid.setColumnWidth(1, new Extent(35));
-		statementsGrid.setColumnWidth(2, new Extent(35));
+		if (!force) {
+			statementsGrid.setColumnWidth(2, new Extent(35));
+		}
 		GridLayoutData centerLayout = new GridLayoutData();
 		centerLayout.setAlignment(new Alignment(Alignment.CENTER, Alignment.CENTER));
 		Label l1 = new Label(getIntlText("classify_true"), Font.ITALIC, 10);
@@ -86,16 +106,20 @@ public class TestStep extends ExperimentStep {
 		Label l2 = new Label(getIntlText("classify_false"), Font.ITALIC, 10);
 		l2.setLayoutData(centerLayout);
 		statementsGrid.add(l2);
-		Label l3 = new Label(getIntlText("no_classification"), Font.ITALIC, 10);
-		l3.setLayoutData(centerLayout);
-		statementsGrid.add(l3);
+		if (!force) {
+			Label l3 = new Label(getIntlText("no_classification"), Font.ITALIC, 10);
+			l3.setLayoutData(centerLayout);
+			statementsGrid.add(l3);
+		}
 		statementsGrid.add(new Label(""));
 		for (Statement st : statements) {
 			ButtonGroup group = new ButtonGroup();
 			buttonGroups.add(group);
 			statementsGrid.add(createRadioButton("classify_true", group));
 			statementsGrid.add(createRadioButton("classify_false", group));
-			statementsGrid.add(createRadioButton("no_classification", group));
+			if (!force) {
+				statementsGrid.add(createRadioButton("no_classification", group));
+			}
 			Row r = new Row();
 			r.setInsets(new Insets(10, 0, 0, 5));
 			r.add(Resources.createStatementComponent(st));
@@ -103,12 +127,14 @@ public class TestStep extends ExperimentStep {
 		}
 		statementsGrid.add(new HSpace(35));
 		statementsGrid.add(new HSpace(35));
-		statementsGrid.add(new HSpace(35));
+		if (!force) {
+			statementsGrid.add(new HSpace(35));
+		}
 		statementsGrid.add(new HSpace(300));
 		statCol.add(statementsGrid);
-		graphRow.add(statCol);
+		mainRow.add(statCol);
 		
-		mailCol.add(graphRow);
+		mailCol.add(mainRow);
 		
 		return mailCol;
 	}
@@ -116,7 +142,11 @@ public class TestStep extends ExperimentStep {
 	public boolean proceed() {
 		for (int i = 0 ; i < statements.size() ; i++) {
 			if (getChoice(i) == NO_CHOICE) {
-				getApp().showWindow(new MessageWindow(getIntlText("error_message_title"), getIntlText("unclassified_statements_error"), getIntlText("ok_option")));
+				getApp().showWindow(new MessageWindow(
+						getIntlText("error_message_title"),
+						getIntlText("unclassified_statements_error"),
+						getIntlText("ok_option")
+					));
 				return false;
 			}
 		}
@@ -125,8 +155,8 @@ public class TestStep extends ExperimentStep {
 	
 	public void finish() {
 		String s = "";
-		int correct = 0;
-		int incorrect = 0;
+		int corr = 0;
+		int incorr = 0;
 		int dontKnow = 0;
 		int noChoice = 0;
 		for (int i = 0 ; i < statements.size() ; i++) {
@@ -134,22 +164,24 @@ public class TestStep extends ExperimentStep {
 			String choice = getChoice(i);
 			s += "(" + choice + ") " + st.getSignature() + " '" + st.getText() + "'\n";
 			if (choice == TRUE && st.hasTag("+")) {
-				correct++;
+				corr++;
 			} else if (choice == FALSE && st.hasTag("-")) {
-				correct++;
-			} else if (choice == DONT_KNOW ) {
+				corr++;
+			} else if (choice == DONT_KNOW) {
 				dontKnow++;
 			} else if (choice == DONT_KNOW || choice == NO_CHOICE) {
 				noChoice++;
 			} else {
-				incorrect++;
+				incorr++;
 			}
 		}
 		log("Choice:\n" + s);
 		int scoreC = new Integer(getApp().getVariableValue("scorec"));
 		int scoreD = new Integer(getApp().getVariableValue("scored"));
-		int score = correct * scoreC + (dontKnow + noChoice) * scoreD;
-		log("$ Score: " + score + " (c=" + correct + ", i=" + incorrect + ", d=" + dontKnow + ", n=" + noChoice + ")");
+		int score = corr * scoreC + (dontKnow + noChoice) * scoreD;
+		String d = "";
+		if (!force) d = ", d=" + dontKnow;
+		log("$ Score: " + score + " (c=" + corr + ", i=" + incorr + d + ", n=" + noChoice + ")");
 	}
 	
 	public boolean hasProceedConfirmation() {
