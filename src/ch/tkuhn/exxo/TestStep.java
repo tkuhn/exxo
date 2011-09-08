@@ -24,7 +24,7 @@ import ch.uzh.ifi.attempto.echocomp.VSpace;
 public class TestStep extends StatementStep {
 	
 	private List<ButtonGroup> buttonGroups = new ArrayList<ButtonGroup>();
-	private List<AnswerDropDown> dropDownMenus = new ArrayList<AnswerDropDown>();
+	private List<AnswerMenu> answerMenus = new ArrayList<AnswerMenu>();
 	private boolean force;
 	
 	public TestStep(String series, Map<String, String> arguments, Experiment experiment) {
@@ -121,9 +121,9 @@ public class TestStep extends StatementStep {
 			statementsGrid.add(new Label(getIntlText("heading_question"), Font.ITALIC, 10));
 			
 			for (Statement st : statements) {
-				AnswerDropDown d = new AnswerDropDown(this, options.toArray(new String[] {}));
-				dropDownMenus.add(d);
-				statementsGrid.add(d);
+				AnswerMenu m = new AnswerMenu(this, options.toArray(new String[] {}));
+				answerMenus.add(m);
+				statementsGrid.add(m);
 				statementsGrid.add(new VSpace(30));
 				statementsGrid.add(createStatementRow(st));
 			}
@@ -191,7 +191,7 @@ public class TestStep extends StatementStep {
 				if (r.isSelected()) return r.getActionCommand();
 			}
 		} else {
-			return dropDownMenus.get(index).getSelection();
+			return answerMenus.get(index).getSelection();
 		}
 		return NO_CHOICE;
 	}
