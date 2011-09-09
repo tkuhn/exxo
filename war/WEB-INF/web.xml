@@ -20,7 +20,7 @@
     <servlet-class>ch.tkuhn.exxo.ExpServlet</servlet-class>
     <init-param>
       <param-name>resources</param-name>
-      <param-value>ch/tkuhn/exxo/exp/test/</param-value>
+      <param-value>ch/tkuhn/exxo/local/tb/</param-value>
     </init-param>
     <init-param>
       <param-name>script</param-name>

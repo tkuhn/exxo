@@ -14,7 +14,6 @@ import java.util.ResourceBundle;
 
 import nextapp.echo.app.Alignment;
 import nextapp.echo.app.ApplicationInstance;
-import nextapp.echo.app.Border;
 import nextapp.echo.app.Color;
 import nextapp.echo.app.Component;
 import nextapp.echo.app.ContentPane;
@@ -33,7 +32,7 @@ import ch.uzh.ifi.attempto.echocomp.Label;
 import ch.uzh.ifi.attempto.echocomp.MessageWindow;
 import ch.uzh.ifi.attempto.echocomp.SolidLabel;
 import ch.uzh.ifi.attempto.echocomp.Style;
-import ch.uzh.ifi.attempto.echocomp.TextField;
+import de.exxcellent.echolot.app.KeystrokeListener;
 import echopoint.DirectHtml;
 
 
@@ -68,12 +67,13 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 	private Label titleLabel;
 	private MessageWindow timeExceededWindow;
 	private MessageWindow proceedConfirmationWindow;
-	private TextField dummyTextField;
 	
 	private final int id;
 	private String name;
 	
 	private ArrayList<LogEntry> logEntries = new ArrayList<LogEntry>();
+	
+	private KeystrokeListener keystrokeListener;
 	
 	public ExpApp(Map<String, String> parameters) {
 		if (idCount == -1) {
@@ -188,13 +188,10 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 		buttonRow.setBackground(new Color(230, 230, 230));
 		buttonRow.setAlignment(new Alignment(Alignment.RIGHT, Alignment.CENTER));
 		buttonRow.setInsets(new Insets(0, 10, 15, 10));
-		dummyTextField = new TextField(this);
-		dummyTextField.setBorder(new Border(0, Color.BLACK, Border.STYLE_SOLID));
-		dummyTextField.setWidth(new Extent(20));
-		dummyTextField.setBackground(new Color(230, 230, 230));
-		dummyTextField.setForeground(new Color(230, 230, 230));
-		buttonRow.add(dummyTextField);
-		buttonRow.add(new HSpace(20));
+		keystrokeListener = new KeystrokeListener();
+		keystrokeListener.setKeyCode("ctrl+alt+f");
+		keystrokeListener.addActionListener(this);
+		buttonRow.add(keystrokeListener);
 		nextButton = new GeneralButton("", 110, this);
 		buttonRow.add(nextButton);
 		bottomSplitPane.add(buttonRow);
@@ -245,8 +242,6 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 			nextButton.setText(step.getForwardButtonText());
 			buttonRow.add(nextButton);
 		}
-
-		dummyTextField.setText("");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -293,16 +288,11 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 			);
 			timeExceededWindow.setClosable(false);
 			showWindow(timeExceededWindow);
-		} else if (s == dummyTextField) {
-			if (dummyTextField.getText().equals("exx")) {
-				log("forced forward");
-				abortCountdown();
-				step = experiment.getNextStep();
-				setFocusedComponent(nextButton);
-				update();
-			} else {
-				dummyTextField.setText("");
-			}
+		} else if (s == keystrokeListener) {
+			log("forced forward");
+			abortCountdown();
+			step = experiment.getNextStep();
+			update();
 		} else if (s == timeExceededWindow) {
 			timeExceededWindow = null;
 			step.finish();

@@ -5,7 +5,7 @@
     <target name="compile" description="Compile the Java files">
         <javac
         	srcdir="src/"
-			classpath="war/WEB-INF/lib/Echo3_App.jar;war/WEB-INF/lib/Echo3_Extras_App.jar;war/WEB-INF/lib/Echo3_Extras_WebContainer.jar;war/WEB-INF/lib/Echo3_WebContainer.jar;war/WEB-INF/lib/echopoint-3.0.0b5.jar;war/WEB-INF/lib/servlet-api.jar;war/WEB-INF/lib/xstream-1.3.1.jar"
+			classpath="war/WEB-INF/lib/Echo3_App.jar;war/WEB-INF/lib/Echo3_Extras_App.jar;war/WEB-INF/lib/Echo3_Extras_WebContainer.jar;war/WEB-INF/lib/Echo3_WebContainer.jar;war/WEB-INF/lib/echopoint-3.0.0b5.jar;war/WEB-INF/lib/servlet-api.jar;war/WEB-INF/lib/xstream-1.3.1.jar;war/WEB-INF/lib/echolot-app-1.0.0-SNAPSHOT.jar;war/WEB-INF/lib/echolot-webcontainer-1.0.0-SNAPSHOT.jar;war/WEB-INF/lib/jettison-1.1.jar"
         	destdir="war/WEB-INF/classes/"
         />
     	<copy todir="war/WEB-INF/classes/ch/tkuhn/exxo">
