@@ -36,19 +36,23 @@ public class TestStep extends StatementStep {
 	}
 	
 	public Component getPage() {
-		Column mailCol = new Column();
-		mailCol.setInsets(new Insets(15, 20));
+		Column col = new Column();
+		col.setInsets(new Insets(15, 20));
 		
 		RowLayoutData layout = new RowLayoutData();
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
-		Row mainRow = new Row();
+		Component mainComp;
+		if ("top".equals(imgpos) || "bottom".equals(imgpos)) {
+			mainComp = new Column();
+		} else {
+			mainComp = new Row();
+		}
 		
+		Component image = null;
 		if (!"off".equals(img)) {
-			Component image = getResources().getImage(img);
+			image = getResources().getImage(img);
 			image.setLayoutData(layout);
-			mainRow.add(image);
-			mainRow.add(new HSpace(20));
 		}
 		
 		Column statCol = new Column();
@@ -59,7 +63,7 @@ public class TestStep extends StatementStep {
 			statCol.add(new VSpace(20));
 		}
 		
-		statCol.setInsets(new Insets(20, 10, 20, 20));
+		statCol.setInsets(new Insets(10));
 		statCol.setLayoutData(layout);
 		
 		Grid statementsGrid;
@@ -134,11 +138,24 @@ public class TestStep extends StatementStep {
 
 		statementsGrid.setInsets(new Insets(0, 5, 0, 0));
 		statCol.add(statementsGrid);
-		mainRow.add(statCol);
 		
-		mailCol.add(mainRow);
+		if (image == null) {
+			mainComp.add(statCol);
+		} else if ("bottom".equals(imgpos) || "right".equals(imgpos)) {
+			mainComp.add(statCol);
+			mainComp.add(new HSpace(50));
+			mainComp.add(new VSpace(50));
+			mainComp.add(image);
+		} else {
+			mainComp.add(image);
+			mainComp.add(new HSpace(50));
+			mainComp.add(new VSpace(50));
+			mainComp.add(statCol);
+		}
 		
-		return mailCol;
+		col.add(mainComp);
+		
+		return col;
 	}
 	
 	public boolean proceed() {

@@ -9,17 +9,20 @@ import nextapp.echo.app.Insets;
 import nextapp.echo.app.Row;
 import nextapp.echo.app.layout.RowLayoutData;
 import ch.uzh.ifi.attempto.echocomp.HSpace;
-
+import ch.uzh.ifi.attempto.echocomp.VSpace;
 
 public class InfoStep extends ExperimentStep {
 	
 	private String content;
 	private String img;
+	private String imgpos;
 	
 	public InfoStep(String content, Map<String, String> arguments, Experiment experiment) {
 		super(arguments, experiment);
 		this.content = content;
-		this.img = arguments.get("img");
+		
+		img = arguments.get("img");
+		imgpos = arguments.get("imgpos");
 		
 		setDefaultTitle(getIntlText("title_info_step"));
 	}
@@ -35,20 +38,33 @@ public class InfoStep extends ExperimentStep {
 			RowLayoutData layout = new RowLayoutData();
 			layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 			
-			Row row = new Row();
+			Component comp;
+			if ("top".equals(imgpos) || "bottom".equals(imgpos)) {
+				comp = new Column();
+			} else {
+				comp = new Row();
+			}
 			
 			Column contentCol = new Column();
 			contentCol.setLayoutData(layout);
 			contentCol.add(htmlComp);
-			row.add(contentCol);
-			
-			row.add(new HSpace(50));
 			
 			Component image = getResources().getImage(img);
 			image.setLayoutData(layout);
-			row.add(image);
+
+			if ("top".equals(imgpos) || "left".equals(imgpos)) {
+				comp.add(image);
+				comp.add(new HSpace(50));
+				comp.add(new VSpace(50));
+				comp.add(contentCol);
+			} else {
+				comp.add(contentCol);
+				comp.add(new HSpace(50));
+				comp.add(new VSpace(50));
+				comp.add(image);
+			}
 			
-			col.add(row);
+			col.add(comp);
 		}
 		return col;
 	}

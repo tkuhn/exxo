@@ -13,6 +13,7 @@ public abstract class StatementStep extends ExperimentStep {
 	public final static String DONT_KNOW = "?";
 	
 	protected String img;
+	protected String imgpos;
 	protected List<Statement> statements;
 	protected String expl;
 	protected List<String> options;
@@ -24,6 +25,7 @@ public abstract class StatementStep extends ExperimentStep {
 		if (img == null) {
 			img = series.split(":")[0];
 		}
+		imgpos = arguments.get("imgpos");
 		statements = getResources().getStatements(series);
 		
 		String shuffle = arguments.get("shuffle");

@@ -22,19 +22,23 @@ public class LearnStep extends StatementStep {
 	}
 	
 	public Component getPage() {
-		Column mailCol = new Column();
-		mailCol.setInsets(new Insets(15, 20));
+		Column col = new Column();
+		col.setInsets(new Insets(15, 20));
 		
 		RowLayoutData layout = new RowLayoutData();
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
-		Row mainRow = new Row();
-		
+		Component mainComp;
+		if ("top".equals(imgpos) || "bottom".equals(imgpos)) {
+			mainComp = new Column();
+		} else {
+			mainComp = new Row();
+		}
+
+		Component image = null;
 		if (!"off".equals(img)) {
-			Component image = getResources().getImage(img);
+			image = getResources().getImage(img);
 			image.setLayoutData(layout);
-			mainRow.add(image);
-			mainRow.add(new HSpace(20));
 		}
 
 		Column statCol = new Column();
@@ -46,7 +50,7 @@ public class LearnStep extends StatementStep {
 		}
 		
 		statCol.setLayoutData(layout);
-		statCol.setInsets(new Insets(20, 10, 20, 20));
+		statCol.setInsets(new Insets(10));
 		
 		if (options == null) {
 			statCol.add(new Label(getIntlText("heading_true_statements"), Font.ITALIC | Font.BOLD));
@@ -75,10 +79,22 @@ public class LearnStep extends StatementStep {
 			}
 		}
 		
-		mainRow.add(statCol);
+		if (image == null) {
+			mainComp.add(statCol);
+		} else if ("bottom".equals(imgpos) || "right".equals(imgpos)) {
+			mainComp.add(statCol);
+			mainComp.add(new HSpace(50));
+			mainComp.add(new VSpace(50));
+			mainComp.add(image);
+		} else {
+			mainComp.add(image);
+			mainComp.add(new HSpace(50));
+			mainComp.add(new VSpace(50));
+			mainComp.add(statCol);
+		}
 		
-		mailCol.add(mainRow);
-		return mailCol;
+		col.add(mainComp);
+		return col;
 	}
 	
 	private Row createAnswerRow(Statement statement) {
