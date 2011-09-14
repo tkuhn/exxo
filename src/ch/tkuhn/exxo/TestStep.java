@@ -43,16 +43,24 @@ public class TestStep extends StatementStep {
 		layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 		
 		Component mainComp;
+		Component imgComp;
 		if ("top".equals(imgpos) || "bottom".equals(imgpos)) {
 			mainComp = new Column();
+			imgComp = new Row();
 		} else {
 			mainComp = new Row();
+			imgComp = new Column();
 		}
+		imgComp.setLayoutData(layout);
 		
-		Component image = null;
-		if (!"off".equals(img)) {
-			image = getResources().getImage(img);
-			image.setLayoutData(layout);
+		if ("off".equals(img)) {
+			imgComp = null;
+		} else {
+			for (String s : img.split("\\|")) {
+				imgComp.add(getResources().getImage(s));
+				imgComp.add(new HSpace(20));
+				imgComp.add(new VSpace(20));
+			}
 		}
 		
 		Column statCol = new Column();
@@ -139,15 +147,15 @@ public class TestStep extends StatementStep {
 		statementsGrid.setInsets(new Insets(0, 5, 0, 0));
 		statCol.add(statementsGrid);
 		
-		if (image == null) {
+		if (imgComp == null) {
 			mainComp.add(statCol);
 		} else if ("bottom".equals(imgpos) || "right".equals(imgpos)) {
 			mainComp.add(statCol);
 			mainComp.add(new HSpace(50));
 			mainComp.add(new VSpace(50));
-			mainComp.add(image);
+			mainComp.add(imgComp);
 		} else {
-			mainComp.add(image);
+			mainComp.add(imgComp);
 			mainComp.add(new HSpace(50));
 			mainComp.add(new VSpace(50));
 			mainComp.add(statCol);

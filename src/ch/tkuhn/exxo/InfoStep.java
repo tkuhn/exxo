@@ -39,21 +39,28 @@ public class InfoStep extends ExperimentStep {
 			layout.setAlignment(new Alignment(Alignment.LEFT, Alignment.TOP));
 			
 			Component comp;
+			Component imgComp;
 			if ("top".equals(imgpos) || "bottom".equals(imgpos)) {
 				comp = new Column();
+				imgComp = new Row();
 			} else {
 				comp = new Row();
+				imgComp = new Column();
 			}
+			imgComp.setLayoutData(layout);
 			
 			Column contentCol = new Column();
 			contentCol.setLayoutData(layout);
 			contentCol.add(htmlComp);
 			
-			Component image = getResources().getImage(img);
-			image.setLayoutData(layout);
+			for (String s : img.split("\\|")) {
+				imgComp.add(getResources().getImage(s));
+				imgComp.add(new HSpace(20));
+				imgComp.add(new VSpace(20));
+			}
 
 			if ("top".equals(imgpos) || "left".equals(imgpos)) {
-				comp.add(image);
+				comp.add(imgComp);
 				comp.add(new HSpace(50));
 				comp.add(new VSpace(50));
 				comp.add(contentCol);
@@ -61,7 +68,7 @@ public class InfoStep extends ExperimentStep {
 				comp.add(contentCol);
 				comp.add(new HSpace(50));
 				comp.add(new VSpace(50));
-				comp.add(image);
+				comp.add(imgComp);
 			}
 			
 			col.add(comp);
