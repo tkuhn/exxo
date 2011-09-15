@@ -12,6 +12,7 @@ import ch.uzh.ifi.attempto.echocomp.Label;
 public class EndStep extends ExperimentStep {
 	
 	private boolean waitTextEnabled = false;
+	private String expl;
 	
 	public EndStep(Map<String, String> arguments, Experiment experiment) {
 		super(arguments, experiment);
@@ -20,19 +21,25 @@ public class EndStep extends ExperimentStep {
 		if (arguments.get("waittext") != null) {
 			waitTextEnabled = arguments.get("waittext").equals("on");
 		}
+		expl = arguments.get("expl");
 		
 		log("! Finished !");
 	}
 
 	public Component getPage() {
-		Column mailCol = new Column();
-		mailCol.setInsets(new Insets(15, 20));
-		mailCol.setCellSpacing(new Extent(10));
-		mailCol.add(new Label(getIntlText("text_finished")));
-		if (waitTextEnabled) {
-			mailCol.add(new Label(getIntlText("text_finished_wait")));
+		Column mainCol = new Column();
+		mainCol.setInsets(new Insets(15, 20, 35, 20));
+		mainCol.setCellSpacing(new Extent(10));
+		if (expl != null) {
+			String explText = getResources().getResourceContent(expl + ".txt");
+			mainCol.add(ExpApp.getHTMLComponent(explText));
+		} else {
+			mainCol.add(new Label(getIntlText("text_finished")));
 		}
-		return mailCol;
+		if (waitTextEnabled) {
+			mainCol.add(new Label(getIntlText("text_finished_wait")));
+		}
+		return mainCol;
 	}
 
 }
