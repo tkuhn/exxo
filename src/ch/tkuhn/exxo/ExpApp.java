@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +39,8 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 
 	private static final long serialVersionUID = -5486047923341168913L;
 	
-	private static HashMap<Integer, ExpApp> apps = new HashMap<Integer, ExpApp>();
+	private static Map<Integer, ExpData> dataMap = new HashMap<Integer, ExpData>();
+	private static List<ExpData> dataList = new ArrayList<ExpData>();
 	private static ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
 	private static int idCount = -1;
 	private static String dir = "exp";
@@ -58,6 +58,7 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 	private Map<String, String> parameters;
 	private Map<String, String> variables = new HashMap<String, String>();
 	private Resources resources;
+	private ExpData data;
 	
 	private ContentPane contentPane;
 	private SplitPane splitPane1, splitPane2;
@@ -67,11 +68,6 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 	private Label titleLabel;
 	private MessageWindow timeExceededWindow;
 	private MessageWindow proceedConfirmationWindow;
-	
-	private final int id;
-	private String name;
-	
-	private ArrayList<LogEntry> logEntries = new ArrayList<LogEntry>();
 	
 	private KeystrokeListener keystrokeListener;
 	
@@ -96,10 +92,6 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 		}
 		
 		idCount++;
-		id = idCount;
-		apps.put(id, this);
-		
-		notifyActionListeners("new");
 		
 		setLocale(new Locale("en", "US"));
 		
@@ -107,18 +99,25 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 		if (script == null) script = "run";
 		
 		this.parameters = parameters;
-		this.resources = new Resources(getParameterValue("resources"));
-		this.experiment = new Experiment(script, this);
-		this.experiment.log("Start Script: " + script);
-		this.step = experiment.getNextStep();
+		resources = new Resources(getParameterValue("resources"));
+		experiment = new Experiment(script, this);
+		
+		data = new ExpData(idCount, this);
+		dataMap.put(idCount, data);
+		dataList.add(data);
+		
+		step = experiment.getNextStep();
+		experiment.log("Start Script: " + script);
+		
+		notifyActionListeners("new");
 	}
 	
-	public static ExpApp getApp(int id) {
-		return apps.get(id);
+	public static List<ExpData> getAllData() {
+		return dataList;
 	}
 	
-	public static Collection<ExpApp> getApps() {
-		return apps.values();
+	public static ExpData getData(int id) {
+		return dataMap.get(id);
 	}
 	
 	public static void addActionListener(ActionListener a) {
@@ -131,16 +130,20 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 		}
 	}
 	
+	public ExpData getData() {
+		return data;
+	}
+	
 	public int getID() {
-		return id;
+		return data.getID();
 	}
 	
 	public void setName(String name) {
-		this.name = name;
+		data.setName(name);
 	}
 	
 	public String getName() {
-		return name;
+		return data.getName();
 	}
 	
 	public String getExpStackTrace() {
@@ -148,10 +151,6 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 			return "";
 		}
 		return "/" + experiment.getExpStackTrace();
-	}
-	
-	public List<LogEntry> getLogEntries() {
-		return new ArrayList<LogEntry>(logEntries);
 	}
 
 	public Window init() {
@@ -215,7 +214,7 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 	}
 	
 	public void dispose() {
-		apps.remove(id);
+		data.inactivate();
 		notifyActionListeners("dispose");
 		super.dispose();
 	}
@@ -332,7 +331,7 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 	
 	public void log(String text) {
 		LogEntry logEntry = new LogEntry(System.currentTimeMillis(), text);
-		logEntries.add(logEntry);
+		data.addLogEntry(logEntry);
 		notifyActionListeners("log");
 		
 		try {
