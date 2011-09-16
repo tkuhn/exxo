@@ -109,6 +109,7 @@ public class ExpApp extends ApplicationInstance implements ActionListener {
 		this.parameters = parameters;
 		this.resources = new Resources(getParameterValue("resources"));
 		this.experiment = new Experiment(script, this);
+		this.experiment.log("Start Script: " + script);
 		this.step = experiment.getNextStep();
 	}
 	
