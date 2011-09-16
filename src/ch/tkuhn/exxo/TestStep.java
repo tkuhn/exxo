@@ -201,12 +201,20 @@ public class TestStep extends StatementStep {
 			}
 		}
 		log("Choice:\n" + s);
-		int scoreC = new Integer(getApp().getVariableValue("scorec"));
-		int scoreD = new Integer(getApp().getVariableValue("scored"));
-		int score = corr * scoreC + (dontKnow + noChoice) * scoreD;
-		String d = "";
-		if (!force) d = ", d=" + dontKnow;
-		log("$ Score: " + score + " (c=" + corr + ", i=" + incorr + d + ", n=" + noChoice + ")");
+		int scoreC = 0;
+		try {
+			scoreC = new Integer(getApp().getVariableValue("scorec"));
+		} catch (NumberFormatException ex) {}
+		int scoreD = 0;
+		try {
+			scoreD = new Integer(getApp().getVariableValue("scored"));
+		} catch (NumberFormatException ex) {}
+		if (scoreC != 0 || scoreD != 0) {
+			int score = corr * scoreC + (dontKnow + noChoice) * scoreD;
+			String d = "";
+			if (!force) d = ", d=" + dontKnow;
+			log("$ Score: " + score + " (c=" + corr + ", i=" + incorr + d + ", n=" + noChoice + ")");
+		}
 	}
 	
 	private String getChoice(int index) {
