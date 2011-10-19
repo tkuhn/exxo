@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/java"/>
 	<classpathentry kind="lib" path="lib/attempto-echo.jar"/>
 	<classpathentry kind="lib" path="lib/Echo3_App.jar"/>
 	<classpathentry kind="lib" path="lib/Echo3_Extras_App.jar"/>
