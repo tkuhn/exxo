@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="EchoExp" default="createwar" basedir=".">
+<project name="exxo" default="createwar" basedir=".">
 
     <target name="compile" description="Compile the Java files">
 		<mkdir dir="war/WEB-INF/classes"/>
